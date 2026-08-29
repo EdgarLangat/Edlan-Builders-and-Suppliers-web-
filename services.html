@@ -331,7 +331,7 @@ img { max-width: 100%; display: block; }
 
 .hero {
   position: relative;
-  min-height: 50vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -352,16 +352,16 @@ img { max-width: 100%; display: block; }
   opacity: 0;
   transition: opacity 1.6s ease-in-out;
 }
-.slide.active { opacity: 2; }
+.slide.active { opacity: 1; }
 
 .hero-video {
   position: absolute;
   inset: 0;
   z-index: 0;
   width: 100%;
-  height: 40%;
+  height: 100%;
   object-fit: cover;
-  opacity: 0.5;
+  opacity: 0.3;
   animation: heroVideoZoom 24s ease-in-out infinite alternate;
 }
 @keyframes heroVideoZoom {
@@ -1131,10 +1131,7 @@ section { position: relative; }
 
     <div class="service-detail reveal">
       <div class="service-detail-media">
-        <div class="photo-placeholder">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#1b2a6e" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-          <span>service-plot-plans.jpg</span>
-        </div>
+        <img src="images/service-plot-plans.jpg" alt="A hard hat and rolled architectural plans on a plot survey site" loading="lazy">
       </div>
       <div>
         <span class="eyebrow">50 × 100 Plot Plans</span>
@@ -1150,10 +1147,7 @@ section { position: relative; }
 
     <div class="service-detail reverse reveal">
       <div class="service-detail-media">
-        <div class="photo-placeholder">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#1b2a6e" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-          <span>REPLACE: images/service-architecture.jpg</span>
-        </div>
+        <img src="images/service-architecture.jpg" alt="An architect hand-drafting a building floor plan" loading="lazy">
       </div>
       <div>
         <span class="eyebrow">Architectural Design</span>
@@ -1169,10 +1163,7 @@ section { position: relative; }
 
     <div class="service-detail reveal">
       <div class="service-detail-media">
-        <div class="photo-placeholder">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#1b2a6e" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-          <span>REPLACE: images/service-materials.jpg</span>
-        </div>
+        <img src="images/service-materials.jpg" alt="Piles of ballast and construction aggregate ready for delivery" loading="lazy">
       </div>
       <div>
         <span class="eyebrow">Supply &amp; Logistics</span>
@@ -1188,10 +1179,7 @@ section { position: relative; }
 
     <div class="service-detail reverse reveal">
       <div class="service-detail-media">
-        <div class="photo-placeholder">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#1b2a6e" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-          <span>REPLACE: images/service-construction.jpg</span>
-        </div>
+        <img src="images/service-construction.jpg" alt="A two-storey house under construction with Edlan crew on the upper floor" loading="lazy">
       </div>
       <div>
         <span class="eyebrow">Turnkey Build</span>
@@ -1207,10 +1195,7 @@ section { position: relative; }
 
     <div class="service-detail reveal">
       <div class="service-detail-media">
-        <div class="photo-placeholder">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#1b2a6e" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-          <span>REPLACE: images/service-school.jpg</span>
-        </div>
+        <img src="images/service-school.jpg" alt="A colourful modern school building with a playground" loading="lazy">
       </div>
       <div>
         <span class="eyebrow">Institutional</span>
@@ -1226,10 +1211,7 @@ section { position: relative; }
 
     <div class="service-detail reverse reveal">
       <div class="service-detail-media">
-        <div class="photo-placeholder">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#1b2a6e" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-          <span>REPLACE: images/service-site-plan.jpg</span>
-        </div>
+        <img src="images/service-site-plan.jpg" alt="Foundation excavation and rebar layout at the start of a build" loading="lazy">
       </div>
       <div>
         <span class="eyebrow">Site Layout</span>
@@ -1245,10 +1227,7 @@ section { position: relative; }
 
     <div class="service-detail reveal">
       <div class="service-detail-media">
-        <div class="photo-placeholder">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#1b2a6e" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-          <span>REPLACE: images/service-mansion.jpg</span>
-        </div>
+        <img src="images/service-mansion.jpg" alt="A large two-storey mansion nearing completion, designed by Edlan" loading="lazy">
       </div>
       <div>
         <span class="eyebrow">Residential Statement</span>
