@@ -1393,7 +1393,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   db.collection('gallery')
     .where('status', '==', 'approved')
-    .orderBy('createdAt', 'desc')
     .get()
     .then(function (snapshot) {
       const grid = document.getElementById('galleryGrid');
@@ -1401,8 +1400,14 @@ document.addEventListener('DOMContentLoaded', function () {
         grid.innerHTML = '<p class="gallery-empty">Our latest project photos are coming soon — check back shortly.</p>';
         return;
       }
-      grid.innerHTML = snapshot.docs.map(function (doc) {
-        const item = doc.data();
+      const items = snapshot.docs.map(function (doc) { return doc.data(); });
+      items.sort(function (a, b) {
+        const aTime = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+        const bTime = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+        return bTime - aTime;
+      });
+
+      grid.innerHTML = items.map(function (item) {
         const media = item.resourceType === 'video'
           ? '<video src="' + item.url + '" muted loop playsinline controls></video>'
           : '<img src="' + item.url + '" alt="' + escapeHtml(item.caption) + '" loading="lazy">';
