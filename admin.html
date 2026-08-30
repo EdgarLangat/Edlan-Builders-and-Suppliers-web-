@@ -1116,7 +1116,23 @@ section { position: relative; }
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
-.admin-main { max-width: 900px; margin: 0 auto; padding: 40px 20px 80px; }
+.admin-main { max-width: 900px; margin: 0 auto; padding: 40px 20px 80px; position: relative; z-index: 1; }
+
+.bg-logo-glow {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  overflow: hidden;
+}
+.bg-logo-glow img {
+  width: min(70vw, 640px);
+  opacity: 0.45;
+  filter: drop-shadow(0 0 60px rgba(240, 214, 117, 0.55)) drop-shadow(0 0 100px rgba(86, 198, 245, 0.35));
+}
 
 .admin-login-wrap {
   max-width: 420px;
@@ -1125,6 +1141,8 @@ section { position: relative; }
   padding: 36px 30px;
   border-radius: var(--radius);
   box-shadow: var(--shadow-soft);
+  position: relative;
+  z-index: 1;
 }
 .login-error {
   color: var(--magenta);
@@ -1155,15 +1173,6 @@ section { position: relative; }
   align-items: flex-start;
   flex-wrap: wrap;
 }
-.admin-item .thumb {
-  width: 120px;
-  height: 90px;
-  border-radius: 8px;
-  overflow: hidden;
-  flex-shrink: 0;
-  background: var(--cream-dim);
-}
-.admin-item .thumb img, .admin-item .thumb video { width: 100%; height: 100%; object-fit: cover; }
 .admin-item .info { flex: 1; min-width: 180px; }
 .admin-item .info p { margin-bottom: 6px; font-size: 0.92rem; }
 .admin-item .meta {
@@ -1193,6 +1202,10 @@ section { position: relative; }
 </style>
 </head>
 <body>
+
+<div class="bg-logo-glow" aria-hidden="true">
+  <img src="images/logo.png" alt="">
+</div>
 
 <header class="admin-header">
   <div class="brand">
@@ -1231,11 +1244,11 @@ section { position: relative; }
     <h2>Add a photo or video</h2>
     <form id="uploadForm" class="contact-form" style="padding:26px;">
       <div class="form-row">
-        <label for="mediaFile">Photo or video file</label>
-        <input type="file" id="mediaFile" accept="image/*,video/*" required>
+        <label for="mediaFile">Photos or videos (you can select several at once)</label>
+        <input type="file" id="mediaFile" accept="image/*,video/*" multiple required>
       </div>
       <div class="form-row">
-        <label for="caption">Caption</label>
+        <label for="caption">Caption (used for all files selected above)</label>
         <textarea id="caption" rows="3" placeholder="e.g. 5-bedroom mansion in Kiamunyi — completed August 2026" required></textarea>
       </div>
       <button type="submit" class="btn btn-primary btn-block" id="uploadBtn">Upload for Review</button>
@@ -1312,27 +1325,13 @@ section { position: relative; }
 
   logoutBtn.addEventListener('click', function () { auth.signOut(); });
 
-  // ---- Upload ----
-  document.getElementById('uploadForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const fileInput = document.getElementById('mediaFile');
-    const captionInput = document.getElementById('caption');
-    const statusEl = document.getElementById('uploadStatus');
-    const btn = document.getElementById('uploadBtn');
-    const file = fileInput.files[0];
-    if (!file) return;
-
-    btn.disabled = true;
-    btn.textContent = 'Uploading…';
-    statusEl.className = 'upload-status';
-    statusEl.style.display = 'block';
-    statusEl.textContent = 'Uploading to Cloudinary — this can take a moment for video…';
-
+  // ---- Upload (supports multiple files in one go) ----
+  function uploadOneFile(file, caption) {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', UPLOAD_PRESET);
 
-    fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/auto/upload', {
+    return fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/auto/upload', {
       method: 'POST',
       body: formData
     })
@@ -1343,33 +1342,56 @@ section { position: relative; }
           url: data.secure_url,
           publicId: data.public_id,
           resourceType: data.resource_type,
-          caption: captionInput.value.trim(),
+          caption: caption,
           status: 'pending',
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-      })
-      .then(function () {
-        statusEl.textContent = 'Uploaded — it is now in "Pending review" below.';
-        statusEl.classList.add('success');
-        document.getElementById('uploadForm').reset();
-      })
-      .catch(function (err) {
-        statusEl.textContent = 'Upload failed: ' + err.message;
-      })
-      .finally(function () {
+      });
+  }
+
+  document.getElementById('uploadForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const fileInput = document.getElementById('mediaFile');
+    const captionInput = document.getElementById('caption');
+    const statusEl = document.getElementById('uploadStatus');
+    const btn = document.getElementById('uploadBtn');
+    const files = Array.from(fileInput.files);
+    const caption = captionInput.value.trim();
+    if (!files.length) return;
+
+    btn.disabled = true;
+    statusEl.className = 'upload-status';
+    statusEl.style.display = 'block';
+
+    let done = 0;
+    let failed = 0;
+
+    function uploadNext(index) {
+      if (index >= files.length) {
         btn.disabled = false;
         btn.textContent = 'Upload for Review';
-      });
+        if (failed === 0) {
+          statusEl.textContent = 'Uploaded ' + done + ' file(s) — now in "Pending review" below.';
+          statusEl.classList.add('success');
+          document.getElementById('uploadForm').reset();
+        } else {
+          statusEl.textContent = done + ' uploaded, ' + failed + ' failed. Check your connection and try again for the failed ones.';
+        }
+        return;
+      }
+      btn.textContent = 'Uploading ' + (index + 1) + ' of ' + files.length + '…';
+      statusEl.textContent = 'Uploading file ' + (index + 1) + ' of ' + files.length + ' — this can take a moment for video…';
+
+      uploadOneFile(files[index], caption)
+        .then(function () { done++; })
+        .catch(function () { failed++; })
+        .finally(function () { uploadNext(index + 1); });
+    }
+
+    uploadNext(0);
   });
 
   // ---- Render helpers ----
-  function mediaThumb(item) {
-    if (item.resourceType === 'video') {
-      return '<video src="' + item.url + '" muted></video>';
-    }
-    return '<img src="' + item.url + '" alt="">';
-  }
-
   function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str || '';
@@ -1384,7 +1406,6 @@ section { position: relative; }
     }
     wrap.innerHTML = items.map(function (item) {
       return '<div class="admin-item">' +
-        '<div class="thumb">' + mediaThumb(item) + '</div>' +
         '<div class="info"><p>' + escapeHtml(item.caption) + '</p>' +
         '<span class="meta">' + item.resourceType.toUpperCase() + '</span></div>' +
         '<div class="actions">' +
@@ -1415,7 +1436,6 @@ section { position: relative; }
     }
     wrap.innerHTML = items.map(function (item) {
       return '<div class="admin-item">' +
-        '<div class="thumb">' + mediaThumb(item) + '</div>' +
         '<div class="info"><p>' + escapeHtml(item.caption) + '</p>' +
         '<span class="meta">' + item.resourceType.toUpperCase() + ' — live on Our Work</span></div>' +
         '<div class="actions">' +
