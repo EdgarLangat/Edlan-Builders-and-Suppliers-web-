@@ -1353,6 +1353,7 @@ section { position: relative; }
     <p>Tell us about your plot or project and let's add it to this page next.</p>
     <div class="cta-actions">
       <a href="contact.html" class="btn btn-primary" data-nav>Contact Edlan</a>
+       <li><a href="https://wa.me/254728234172" target="Hello Edlan Builders" rel="noopener">💬 +254 728 234 172 (WhatsApp)</a></li>
       <a href="tel:+254728234172" class="btn btn-magenta">Call 0728 234 172</a>
     </div>
   </div>
@@ -1522,7 +1523,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var body = 'Name: ' + name + '%0D%0APhone: ' + phone +
                  '%0D%0AService needed: ' + service +
                  '%0D%0A%0D%0A' + encodeURIComponent(message);
-      var subject = encodeURIComponent('Website enquiry from ' + (name || 'a visitor'));
+      var subject = encodeURIComponent('Special enquiry from ' + (name || 'a visitor'));
 
       setTimeout(function () {
         window.location.href = 'mailto:edlanbid@gmail.com?subject=' + subject + '&body=' + body;
