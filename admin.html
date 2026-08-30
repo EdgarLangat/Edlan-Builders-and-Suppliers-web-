@@ -1223,12 +1223,100 @@ section { position: relative; }
   color: var(--ink-soft);
   padding: 20px 0;
 }
+.btn-feature { background: #fff3cd; color: #8a6400; border: 1px solid rgba(217,154,43,0.4); }
+.btn-feature.is-featured { background: linear-gradient(135deg, var(--amber), var(--amber-light)); color: #3a2405; }
+.featured-tag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--amber-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-left: 6px;
+}
+
+/* ---- Edit modal ---- */
+.edit-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background: rgba(14,23,64,0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+.edit-modal.open { display: flex; }
+.edit-modal-inner {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 24px;
+  max-width: 560px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.edit-modal-inner h3 { margin-bottom: 16px; }
+.cropper-wrap { max-height: 50vh; overflow: hidden; margin-bottom: 16px; background: #000; }
+.cropper-wrap img { display: block; max-width: 100%; }
+.edit-video-preview { width: 100%; max-height: 40vh; margin-bottom: 16px; background: #000; border-radius: 8px; }
+.edit-row { display: flex; gap: 12px; margin-bottom: 14px; }
+.edit-row .form-row { flex: 1; margin-bottom: 0; }
+.edit-checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
+.edit-checkbox-row input { width: 18px; height: 18px; }
+.edit-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.edit-status { font-family: var(--font-mono); font-size: 0.8rem; margin-top: 10px; display: none; }
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 </head>
 <body>
 
 <div class="bg-logo-glow" aria-hidden="true">
   <img src="images/logo.png" alt="">
+</div>
+
+<!-- ===================== EDIT MODAL ===================== -->
+<div class="edit-modal" id="editModal">
+  <div class="edit-modal-inner">
+    <h3 id="editModalTitle">Edit item</h3>
+
+    <!-- Image crop UI -->
+    <div id="editImageTools" style="display:none;">
+      <div class="cropper-wrap"><img id="cropperImg" src="" alt=""></div>
+      <div class="edit-actions">
+        <button class="btn btn-primary" id="saveCropBtn" type="button">Save Crop</button>
+        <button class="btn btn-outline" id="resetCropBtn" type="button" style="color:var(--navy); border-color:var(--navy);">Reset to Original</button>
+      </div>
+    </div>
+
+    <!-- Video trim/mute UI -->
+    <div id="editVideoTools" style="display:none;">
+      <video id="editVideoPreview" class="edit-video-preview" src="" controls muted></video>
+      <div class="edit-row">
+        <div class="form-row">
+          <label for="trimStart">Start (seconds)</label>
+          <input type="number" id="trimStart" min="0" step="0.5" placeholder="0">
+        </div>
+        <div class="form-row">
+          <label for="trimEnd">End (seconds)</label>
+          <input type="number" id="trimEnd" min="0" step="0.5" placeholder="leave blank for full length">
+        </div>
+      </div>
+      <div class="edit-checkbox-row">
+        <input type="checkbox" id="muteVideo">
+        <label for="muteVideo" style="margin:0;">Mute audio</label>
+      </div>
+      <div class="edit-actions">
+        <button class="btn btn-primary" id="saveTrimBtn" type="button">Save Changes</button>
+        <button class="btn btn-outline" id="resetTrimBtn" type="button" style="color:var(--navy); border-color:var(--navy);">Reset to Original</button>
+      </div>
+    </div>
+
+    <p class="edit-status" id="editStatus"></p>
+    <div class="edit-actions" style="margin-top:16px;">
+      <button class="btn-sm btn-reject" id="closeEditBtn" type="button">Close</button>
+    </div>
+  </div>
 </div>
 
 <header class="admin-header">
@@ -1298,6 +1386,7 @@ section { position: relative; }
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
 
 <script>
   // ---- Firebase project config ----
@@ -1366,9 +1455,12 @@ section { position: relative; }
           url: data.secure_url,
           publicId: data.public_id,
           resourceType: data.resource_type,
+          format: data.format,
           caption: caption,
           status: 'pending',
           likes: 0,
+          featured: false,
+          featured: false,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
       });
@@ -1423,6 +1515,174 @@ section { position: relative; }
     return div.innerHTML;
   }
 
+  // Builds the display URL for an item, applying any saved crop (images) or
+  // trim/mute (video) as a Cloudinary on-the-fly transformation — nothing is
+  // re-uploaded or re-encoded, Cloudinary generates the edited version live.
+  function buildMediaUrl(item) {
+    if (!item.publicId) return item.url; // fallback for older items missing metadata
+    const format = item.format || (item.url ? item.url.split('.').pop().split('?')[0] : (item.resourceType === 'video' ? 'mp4' : 'jpg'));
+    const transforms = [];
+
+    if (item.resourceType === 'image' && item.crop) {
+      transforms.push('c_crop,x_' + Math.round(item.crop.x) + ',y_' + Math.round(item.crop.y) + ',w_' + Math.round(item.crop.w) + ',h_' + Math.round(item.crop.h));
+    }
+    if (item.resourceType === 'video') {
+      const vt = [];
+      if (item.trim && item.trim.start != null) vt.push('so_' + item.trim.start);
+      if (item.trim && item.trim.end != null) vt.push('eo_' + item.trim.end);
+      if (item.muted) vt.push('ac_none');
+      if (vt.length) transforms.push(vt.join(','));
+    }
+
+    if (!transforms.length) return item.url;
+    return 'https://res.cloudinary.com/' + CLOUD_NAME + '/' + item.resourceType + '/upload/' + transforms.join('/') + '/' + item.publicId + '.' + format;
+  }
+
+  // ---- Edit modal (crop for images, trim/mute for video) ----
+  let cropperInstance = null;
+  let currentEditItem = null;
+
+  function openEditModal(id) {
+    const item = allItemsById[id];
+    if (!item) return;
+    currentEditItem = item;
+
+    document.getElementById('editModalTitle').textContent = 'Edit: ' + (item.caption || '');
+    const statusEl = document.getElementById('editStatus');
+    statusEl.style.display = 'none';
+    statusEl.textContent = '';
+
+    const imgTools = document.getElementById('editImageTools');
+    const videoTools = document.getElementById('editVideoTools');
+
+    if (item.resourceType === 'video') {
+      imgTools.style.display = 'none';
+      videoTools.style.display = 'block';
+      const videoEl = document.getElementById('editVideoPreview');
+      videoEl.pause();
+      videoEl.src = item.url; // preview the ORIGINAL (with sound) so trim points can be picked by ear
+      document.getElementById('trimStart').value = (item.trim && item.trim.start != null) ? item.trim.start : '';
+      document.getElementById('trimEnd').value = (item.trim && item.trim.end != null) ? item.trim.end : '';
+      document.getElementById('muteVideo').checked = !!item.muted;
+    } else {
+      videoTools.style.display = 'none';
+      imgTools.style.display = 'block';
+      const imgEl = document.getElementById('cropperImg');
+      if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+
+      const onLoad = function () {
+        imgEl.removeEventListener('load', onLoad);
+        cropperInstance = new Cropper(imgEl, {
+          viewMode: 1,
+          autoCropArea: 1,
+          background: false,
+          ready: function () {
+            if (item.crop) {
+              cropperInstance.setData({
+                x: item.crop.x, y: item.crop.y,
+                width: item.crop.w, height: item.crop.h
+              });
+            }
+          }
+        });
+      };
+      imgEl.addEventListener('load', onLoad);
+      imgEl.src = item.url; // always crop from the ORIGINAL, not a previously-cropped version
+    }
+
+    document.getElementById('editModal').classList.add('open');
+  }
+
+  function closeEditModal() {
+    document.getElementById('editModal').classList.remove('open');
+    if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+    const videoEl = document.getElementById('editVideoPreview');
+    videoEl.pause();
+    videoEl.removeAttribute('src');
+    videoEl.load();
+    currentEditItem = null;
+  }
+  document.getElementById('closeEditBtn').addEventListener('click', closeEditModal);
+
+  document.getElementById('saveCropBtn').addEventListener('click', function () {
+    if (!cropperInstance || !currentEditItem) return;
+    const data = cropperInstance.getData(true);
+    const statusEl = document.getElementById('editStatus');
+    statusEl.style.display = 'block';
+    statusEl.textContent = 'Saving crop…';
+    db.collection('gallery').doc(currentEditItem.id).update({
+      crop: { x: data.x, y: data.y, w: data.width, h: data.height }
+    }).then(function () {
+      statusEl.textContent = 'Crop saved — visible on the site now.';
+      currentEditItem.crop = { x: data.x, y: data.y, w: data.width, h: data.height };
+    }).catch(function (err) {
+      statusEl.textContent = 'Failed to save: ' + err.message;
+    });
+  });
+
+  document.getElementById('resetCropBtn').addEventListener('click', function () {
+    if (!currentEditItem) return;
+    const statusEl = document.getElementById('editStatus');
+    statusEl.style.display = 'block';
+    statusEl.textContent = 'Resetting…';
+    db.collection('gallery').doc(currentEditItem.id).update({
+      crop: firebase.firestore.FieldValue.delete()
+    }).then(function () {
+      statusEl.textContent = 'Reset to the original photo.';
+      delete currentEditItem.crop;
+      if (cropperInstance) cropperInstance.reset();
+    }).catch(function (err) {
+      statusEl.textContent = 'Failed to reset: ' + err.message;
+    });
+  });
+
+  document.getElementById('saveTrimBtn').addEventListener('click', function () {
+    if (!currentEditItem) return;
+    const startVal = document.getElementById('trimStart').value;
+    const endVal = document.getElementById('trimEnd').value;
+    const muted = document.getElementById('muteVideo').checked;
+    const trim = {};
+    if (startVal !== '') trim.start = parseFloat(startVal);
+    if (endVal !== '') trim.end = parseFloat(endVal);
+
+    const statusEl = document.getElementById('editStatus');
+    statusEl.style.display = 'block';
+    statusEl.textContent = 'Saving…';
+
+    const update = { muted: muted };
+    update.trim = Object.keys(trim).length ? trim : firebase.firestore.FieldValue.delete();
+
+    db.collection('gallery').doc(currentEditItem.id).update(update).then(function () {
+      statusEl.textContent = 'Saved — visible on the site now.';
+      currentEditItem.trim = Object.keys(trim).length ? trim : null;
+      currentEditItem.muted = muted;
+    }).catch(function (err) {
+      statusEl.textContent = 'Failed to save: ' + err.message;
+    });
+  });
+
+  document.getElementById('resetTrimBtn').addEventListener('click', function () {
+    if (!currentEditItem) return;
+    document.getElementById('trimStart').value = '';
+    document.getElementById('trimEnd').value = '';
+    document.getElementById('muteVideo').checked = false;
+
+    const statusEl = document.getElementById('editStatus');
+    statusEl.style.display = 'block';
+    statusEl.textContent = 'Resetting…';
+
+    db.collection('gallery').doc(currentEditItem.id).update({
+      trim: firebase.firestore.FieldValue.delete(),
+      muted: false
+    }).then(function () {
+      statusEl.textContent = 'Reset to the original video.';
+      delete currentEditItem.trim;
+      currentEditItem.muted = false;
+    }).catch(function (err) {
+      statusEl.textContent = 'Failed to reset: ' + err.message;
+    });
+  });
+
   function renderPending(items) {
     const wrap = document.getElementById('pendingList');
     if (!items.length) {
@@ -1430,17 +1690,19 @@ section { position: relative; }
       return;
     }
     wrap.innerHTML = items.map(function (item) {
+      const mediaUrl = buildMediaUrl(item);
       const thumb = item.resourceType === 'video'
-        ? '<video src="' + item.url + '" muted></video>'
-        : '<img src="' + item.url + '" alt="">';
+        ? '<video src="' + mediaUrl + '" muted></video>'
+        : '<img src="' + mediaUrl + '" alt="">';
       return '<div class="admin-item">' +
-        '<a class="view-thumb" href="' + item.url + '" target="_blank" rel="noopener">' + thumb + '</a>' +
+        '<a class="view-thumb" href="' + mediaUrl + '" target="_blank" rel="noopener">' + thumb + '</a>' +
         '<div class="info"><p>' + escapeHtml(item.caption) + '</p>' +
         '<span class="meta">' + item.resourceType.toUpperCase() + '</span> ' +
-        '<a class="view-link" href="' + item.url + '" target="_blank" rel="noopener">View full size</a></div>' +
+        '<a class="view-link" href="' + mediaUrl + '" target="_blank" rel="noopener">View full size</a></div>' +
         '<div class="actions">' +
         '<button class="btn-sm btn-approve" data-approve="' + item.id + '">Approve</button>' +
         '<button class="btn-sm btn-reject" data-reject="' + item.id + '">Reject</button>' +
+        '<button class="btn-sm btn-reject" data-edit="' + item.id + '">Edit</button>' +
         '</div></div>';
     }).join('');
 
@@ -1456,6 +1718,9 @@ section { position: relative; }
         }
       });
     });
+    wrap.querySelectorAll('[data-edit]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openEditModal(btn.dataset.edit); });
+    });
   }
 
   function renderApproved(items) {
@@ -1465,15 +1730,19 @@ section { position: relative; }
       return;
     }
     wrap.innerHTML = items.map(function (item) {
+      const mediaUrl = buildMediaUrl(item);
       const thumb = item.resourceType === 'video'
-        ? '<video src="' + item.url + '" muted></video>'
-        : '<img src="' + item.url + '" alt="">';
+        ? '<video src="' + mediaUrl + '" muted></video>'
+        : '<img src="' + mediaUrl + '" alt="">';
+      const featured = !!item.featured;
       return '<div class="admin-item">' +
-        '<a class="view-thumb" href="' + item.url + '" target="_blank" rel="noopener">' + thumb + '</a>' +
-        '<div class="info"><p>' + escapeHtml(item.caption) + '</p>' +
+        '<a class="view-thumb" href="' + mediaUrl + '" target="_blank" rel="noopener">' + thumb + '</a>' +
+        '<div class="info"><p>' + escapeHtml(item.caption) + (featured ? '<span class="featured-tag">★ Featured</span>' : '') + '</p>' +
         '<span class="meta">' + item.resourceType.toUpperCase() + ' — live on Our Work</span> ' +
-        '<a class="view-link" href="' + item.url + '" target="_blank" rel="noopener">View full size</a></div>' +
+        '<a class="view-link" href="' + mediaUrl + '" target="_blank" rel="noopener">View full size</a></div>' +
         '<div class="actions">' +
+        '<button class="btn-sm btn-feature' + (featured ? ' is-featured' : '') + '" data-feature="' + item.id + '" data-current="' + featured + '">' + (featured ? 'Unfeature' : 'Feature') + '</button>' +
+        '<button class="btn-sm btn-reject" data-edit="' + item.id + '">Edit</button>' +
         '<button class="btn-sm btn-remove" data-remove="' + item.id + '">Remove from Site</button>' +
         '</div></div>';
     }).join('');
@@ -1485,15 +1754,34 @@ section { position: relative; }
         }
       });
     });
+    wrap.querySelectorAll('[data-edit]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openEditModal(btn.dataset.edit); });
+    });
+    wrap.querySelectorAll('[data-feature]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const isCurrentlyFeatured = btn.dataset.current === 'true';
+        if (!isCurrentlyFeatured) {
+          const featuredCount = allItemsById ? Object.values(allItemsById).filter(function (i) { return i.status === 'approved' && i.featured; }).length : 0;
+          if (featuredCount >= 2 && !confirm('You already have 2 featured projects. Feature this one too?')) {
+            return;
+          }
+        }
+        db.collection('gallery').doc(btn.dataset.feature).update({ featured: !isCurrentlyFeatured });
+      });
+    });
   }
+
+  let allItemsById = {};
 
   function startListeners() {
     db.collection('gallery').orderBy('createdAt', 'desc')
       .onSnapshot(function (snapshot) {
         const pending = [];
         const approved = [];
+        allItemsById = {};
         snapshot.forEach(function (doc) {
           const item = Object.assign({ id: doc.id }, doc.data());
+          allItemsById[item.id] = item;
           if (item.status === 'approved') approved.push(item);
           else pending.push(item);
         });
