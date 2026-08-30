@@ -1182,6 +1182,7 @@ section { position: relative; }
       <form class="contact-form" id="contactForm">
         <span class="eyebrow">Send an Enquiry</span>
         <h3 style="margin-bottom:22px;">Get a free quote</h3>
+        <p id="designRefNote" style="display:none; background:#fff7e0; border:1px solid var(--amber); border-radius:8px; padding:10px 14px; font-size:0.85rem; color:var(--navy); margin-bottom:18px;"></p>
 
         <div class="form-row">
           <label for="name">Full name</label>
@@ -1405,5 +1406,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
 </script>
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+<script>
+  (function () {
+    const params = new URLSearchParams(window.location.search);
+    const design = params.get('design');
+    if (!design) return;
+    const note = document.getElementById('designRefNote');
+    const messageBox = document.getElementById('message');
+    if (note) {
+      note.textContent = 'Asking about: ' + design;
+      note.style.display = 'block';
+    }
+    if (messageBox && !messageBox.value) {
+      messageBox.value = "I'm interested in a design similar to: " + design;
+    }
+  })();
+</script>
 </body>
 </html>

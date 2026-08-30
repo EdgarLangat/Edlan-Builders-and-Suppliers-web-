@@ -1101,6 +1101,24 @@ section { position: relative; }
   aspect-ratio: 4/3;
   overflow: hidden;
   background: var(--cream-dim);
+  cursor: pointer;
+  position: relative;
+}
+.gallery-card .media-wrap::after {
+  content: "⤢";
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(14,23,64,0.55);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  pointer-events: none;
 }
 .gallery-card img, .gallery-card video {
   width: 100%;
@@ -1109,11 +1127,71 @@ section { position: relative; }
   display: block;
 }
 .gallery-card .caption {
-  padding: 16px 18px;
+  padding: 16px 18px 8px;
   font-size: 0.92rem;
   color: var(--ink-soft);
   margin: 0;
 }
+.gallery-card .card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px 16px;
+  gap: 10px;
+}
+.like-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid rgba(27,42,110,0.15);
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+.like-btn:active { transform: scale(0.94); }
+.like-btn svg { width: 15px; height: 15px; fill: none; stroke: var(--magenta); stroke-width: 2; transition: fill 0.2s ease; }
+.like-btn.liked { border-color: var(--magenta); color: var(--magenta-dark); }
+.like-btn.liked svg { fill: var(--magenta); }
+.ask-link {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--navy);
+  border-bottom: 1px solid var(--amber);
+  white-space: nowrap;
+}
+
+.gallery-filters {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 34px;
+  flex-wrap: wrap;
+}
+.gallery-filters button {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 9px 20px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(27,42,110,0.15);
+  background: var(--white);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.gallery-filters button.active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: var(--white);
+}
+
 .gallery-empty {
   grid-column: 1 / -1;
   text-align: center;
@@ -1121,9 +1199,70 @@ section { position: relative; }
   color: var(--ink-soft);
   font-family: var(--font-mono);
 }
+
+/* ---- Lightbox ---- */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(14,23,64,0.92);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.lightbox.open { display: flex; }
+.lightbox-inner { max-width: 900px; width: 100%; text-align: center; }
+.lightbox-inner img, .lightbox-inner video {
+  max-width: 100%;
+  max-height: 70vh;
+  border-radius: 10px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.lightbox-caption {
+  color: #fff;
+  margin-top: 16px;
+  font-size: 0.95rem;
+}
+.lightbox-close {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.12);
+  border: none;
+  color: #fff;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+.lightbox-prev { left: 18px; }
+.lightbox-next { right: 18px; }
+@media (max-width: 640px) {
+  .lightbox-nav { width: 38px; height: 38px; font-size: 1.1rem; }
+}
 </style>
 </head>
 <body>
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close">&times;</button>
+  <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Previous">&#8249;</button>
+  <div class="lightbox-inner" id="lightboxInner"></div>
+  <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next">&#8250;</button>
+</div>
 
 <div class="load-overlay" id="loadOverlay">
   <div class="load-ring-wrap">
@@ -1166,6 +1305,11 @@ section { position: relative; }
 
 <section class="section section-cream">
   <div class="container">
+    <div class="gallery-filters" id="galleryFilters" style="display:none;">
+      <button data-filter="all" class="active">All</button>
+      <button data-filter="image">Photos</button>
+      <button data-filter="video">Videos</button>
+    </div>
     <div id="galleryGrid" class="gallery-grid">
       <p class="gallery-empty">Loading our latest work…</p>
     </div>
@@ -1391,6 +1535,121 @@ document.addEventListener('DOMContentLoaded', function () {
     return div.innerHTML;
   }
 
+  let allItems = [];
+  let visibleItems = [];
+  let currentFilter = 'all';
+  let lightboxIndex = 0;
+
+  function likedKey(id) { return 'edlan_liked_' + id; }
+  function isLiked(id) { return localStorage.getItem(likedKey(id)) === '1'; }
+
+  function cardMedia(item, withControls) {
+    return item.resourceType === 'video'
+      ? '<video src="' + item.url + '" muted loop playsinline' + (withControls ? ' controls' : '') + '></video>'
+      : '<img src="' + item.url + '" alt="' + escapeHtml(item.caption) + '" loading="lazy">';
+  }
+
+  function renderGrid() {
+    const grid = document.getElementById('galleryGrid');
+    visibleItems = currentFilter === 'all'
+      ? allItems
+      : allItems.filter(function (i) { return i.resourceType === currentFilter; });
+
+    if (!visibleItems.length) {
+      grid.innerHTML = '<p class="gallery-empty">No ' + (currentFilter === 'all' ? 'items' : currentFilter + 's') + ' to show yet.</p>';
+      return;
+    }
+
+    grid.innerHTML = visibleItems.map(function (item, index) {
+      const liked = isLiked(item.id);
+      return '<div class="gallery-card reveal in-view">' +
+        '<div class="media-wrap" data-open="' + index + '">' + cardMedia(item, false) + '</div>' +
+        '<p class="caption">' + escapeHtml(item.caption) + '</p>' +
+        '<div class="card-footer">' +
+        '<button class="like-btn' + (liked ? ' liked' : '') + '" data-like="' + item.id + '">' +
+        '<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.7-10-9.1C.6 8.9 2 5 5.6 5 8 5 10 6.5 12 9c2-2.5 4-4 6.4-4 3.6 0 5 3.9 3.6 6.9C19.5 16.3 12 21 12 21z"/></svg>' +
+        '<span data-like-count="' + item.id + '">' + (item.likes || 0) + '</span>' +
+        '</button>' +
+        '<a class="ask-link" href="contact.html?design=' + encodeURIComponent(item.caption) + '" data-nav>Ask about this design</a>' +
+        '</div></div>';
+    }).join('');
+
+    grid.querySelectorAll('[data-open]').forEach(function (el) {
+      el.addEventListener('click', function () { openLightbox(parseInt(el.dataset.open, 10)); });
+    });
+
+    grid.querySelectorAll('[data-like]').forEach(function (btn) {
+      btn.addEventListener('click', function () { toggleLike(btn.dataset.like, btn); });
+    });
+  }
+
+  function toggleLike(id, btn) {
+    const item = allItems.find(function (i) { return i.id === id; });
+    if (!item) return;
+    const liked = isLiked(id);
+    const delta = liked ? -1 : 1;
+
+    db.collection('gallery').doc(id).update({
+      likes: firebase.firestore.FieldValue.increment(delta)
+    }).then(function () {
+      item.likes = (item.likes || 0) + delta;
+      if (liked) {
+        localStorage.removeItem(likedKey(id));
+      } else {
+        localStorage.setItem(likedKey(id), '1');
+      }
+      btn.classList.toggle('liked', !liked);
+      const countEl = btn.querySelector('[data-like-count]');
+      if (countEl) countEl.textContent = item.likes;
+    }).catch(function (err) { console.error(err); });
+  }
+
+  // ---- Filter tabs ----
+  document.getElementById('galleryFilters').addEventListener('click', function (e) {
+    const btn = e.target.closest('button[data-filter]');
+    if (!btn) return;
+    document.querySelectorAll('#galleryFilters button').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderGrid();
+  });
+
+  // ---- Lightbox ----
+  const lightbox = document.getElementById('lightbox');
+  const lightboxInner = document.getElementById('lightboxInner');
+
+  function openLightbox(index) {
+    lightboxIndex = index;
+    renderLightbox();
+    lightbox.classList.add('open');
+  }
+  function closeLightbox() { lightbox.classList.remove('open'); }
+  function renderLightbox() {
+    const item = visibleItems[lightboxIndex];
+    if (!item) return;
+    lightboxInner.innerHTML = cardMedia(item, true) +
+      '<p class="lightbox-caption">' + escapeHtml(item.caption) + '</p>';
+  }
+  document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+  document.getElementById('lightboxPrev').addEventListener('click', function () {
+    lightboxIndex = (lightboxIndex - 1 + visibleItems.length) % visibleItems.length;
+    renderLightbox();
+  });
+  document.getElementById('lightboxNext').addEventListener('click', function () {
+    lightboxIndex = (lightboxIndex + 1) % visibleItems.length;
+    renderLightbox();
+  });
+  lightbox.addEventListener('click', function (e) {
+    if (e.target === lightbox) closeLightbox();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') document.getElementById('lightboxPrev').click();
+    if (e.key === 'ArrowRight') document.getElementById('lightboxNext').click();
+  });
+
+  // ---- Load data ----
   db.collection('gallery')
     .where('status', '==', 'approved')
     .get()
@@ -1400,26 +1659,16 @@ document.addEventListener('DOMContentLoaded', function () {
         grid.innerHTML = '<p class="gallery-empty">Our latest project photos are coming soon — check back shortly.</p>';
         return;
       }
-      const items = snapshot.docs.map(function (doc) { return doc.data(); });
-      items.sort(function (a, b) {
+      allItems = snapshot.docs.map(function (doc) {
+        return Object.assign({ id: doc.id }, doc.data());
+      });
+      allItems.sort(function (a, b) {
         const aTime = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
         const bTime = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
         return bTime - aTime;
       });
-
-      grid.innerHTML = items.map(function (item) {
-        const media = item.resourceType === 'video'
-          ? '<video src="' + item.url + '" muted loop playsinline controls></video>'
-          : '<img src="' + item.url + '" alt="' + escapeHtml(item.caption) + '" loading="lazy">';
-        return '<div class="gallery-card reveal">' +
-          '<div class="media-wrap">' + media + '</div>' +
-          '<p class="caption">' + escapeHtml(item.caption) + '</p>' +
-          '</div>';
-      }).join('');
-
-      document.querySelectorAll('.gallery-card.reveal').forEach(function (el) {
-        el.classList.add('in-view');
-      });
+      document.getElementById('galleryFilters').style.display = 'flex';
+      renderGrid();
     })
     .catch(function (err) {
       document.getElementById('galleryGrid').innerHTML =
@@ -1427,5 +1676,6 @@ document.addEventListener('DOMContentLoaded', function () {
       console.error(err);
     });
 </script>
+
 </body>
 </html>
