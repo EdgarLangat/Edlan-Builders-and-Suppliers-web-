@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light">
-<title>Edlan Builders and Suppliers | Building Together Our Future — Nakuru, Kenya</title>
-<meta name="description" content="Edlan Builders and Suppliers — plot plans, architectural design, site plans, school plans, mansion design, building materials & delivery, and construction in Nakuru, Kenya.">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin | Edlan Builders and Suppliers</title>
 <link rel="icon" href="images/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -1090,436 +1090,365 @@ section { position: relative; }
   border-color: rgba(240,214,117,0.35);
 }
 
+
+
+/* ---- Admin-page-specific styles ---- */
+.admin-header {
+  position: sticky;
+  top: 0;
+  z-index: 500;
+  background: var(--white);
+  border-bottom: 1px solid rgba(27,42,110,0.08);
+  box-shadow: 0 2px 16px rgba(27,42,110,0.07);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+}
+.admin-header .brand { display: flex; align-items: center; gap: 10px; }
+.admin-header .brand img { height: 40px; }
+.admin-header .brand strong { font-family: var(--font-display); color: var(--navy); }
+.admin-header .brand span {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--magenta);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.admin-main { max-width: 900px; margin: 0 auto; padding: 40px 20px 80px; }
+
+.admin-login-wrap {
+  max-width: 420px;
+  margin: 60px auto;
+  background: var(--white);
+  padding: 36px 30px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+}
+.login-error {
+  color: var(--magenta);
+  font-size: 0.85rem;
+  margin-top: 10px;
+  display: none;
+}
+
+.admin-section { margin-bottom: 56px; }
+.admin-section h2 { font-size: 1.3rem; }
+.upload-status {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--magenta);
+  margin-top: 12px;
+  display: none;
+}
+.upload-status.success { color: #4ea024; }
+
+.admin-item {
+  display: flex;
+  gap: 16px;
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow-soft);
+  margin-bottom: 14px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.admin-item .thumb {
+  width: 120px;
+  height: 90px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--cream-dim);
+}
+.admin-item .thumb img, .admin-item .thumb video { width: 100%; height: 100%; object-fit: cover; }
+.admin-item .info { flex: 1; min-width: 180px; }
+.admin-item .info p { margin-bottom: 6px; font-size: 0.92rem; }
+.admin-item .meta {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--ink-soft);
+}
+.admin-item .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.btn-sm {
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+.btn-approve { background: linear-gradient(135deg, var(--green-start), #4ea024); color: #fff; }
+.btn-reject { background: #f2f2f2; color: var(--charcoal); border: 1px solid #ddd; }
+.btn-remove { background: #fde8ee; color: var(--magenta-dark); border: 1px solid rgba(224,17,122,0.3); }
+.empty-note {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  padding: 20px 0;
+}
 </style>
 </head>
 <body>
 
-<!-- ===================== LOADING OVERLAY ===================== -->
-<div class="load-overlay" id="loadOverlay">
-  <div class="load-ring-wrap">
-    <div class="load-ring"></div>
-    <img src="images/logo-trimmed.png" alt="Loading">
-    <span class="load-text">Building your page…</span>
-  </div>
-</div>
-
-<!-- ===================== HEADER ===================== -->
-<header class="site-header">
-  <div class="nav-wrap">
-    <a href="index.html" class="brand" data-nav>
-      <img src="images/logo.png" alt="Edlan Builders and Suppliers logo">
-      <div class="brand-text">
-        <strong>EDLAN</strong>
-        <span>Builders &amp; Suppliers</span>
-      </div>
-    </a>
-    <nav>
-      <ul class="nav-links">
-        <li><a href="index.html" class="active" data-nav>Home</a></li>
-        <li><a href="services.html" data-nav>Services</a></li>
-        <li><a href="work.html" data-nav>Our Work</a></li>
-        <li><a href="about.html" data-nav>About</a></li>
-        <li><a href="contact.html" data-nav>Contact</a></li>
-      </ul>
-    </nav>
-    <div class="nav-cta">
-      <a class="nav-call" href="tel:+254728234172">
-        <span>📞</span><span class="call-label">0728 234 172</span>
-      </a>
-      <a class="btn-quote" href="contact.html" data-nav>Get a Quote</a>
-      <button class="nav-toggle" aria-label="Toggle menu">
-        <span></span><span></span><span></span>
-      </button>
+<header class="admin-header">
+  <div class="brand">
+    <img src="images/logo.png" alt="Edlan logo">
+    <div>
+      <strong>EDLAN Admin</strong>
+      <span>Photo &amp; Video Uploads</span>
     </div>
   </div>
+  <button class="btn btn-outline" id="logoutBtn" style="display:none; color:var(--navy); border-color:var(--navy);">Log Out</button>
 </header>
 
-<!-- ===================== HERO / SLIDESHOW ===================== -->
-<section class="hero">
-  <video
-    class="hero-video"
-    autoplay
-    muted
-    loop
-    playsinline
-    preload="auto"
-    poster="images/hero-video-poster.jpg">
-    <source src="video/hero-bg.mp4" type="video/mp4">
-  </video>
-  <div class="hero-overlay"></div>
-
-  <div class="hero-content">
-    <img src="images/logo.png" alt="Edlan Builders and Suppliers" class="hero-logo">
-    <h1>Building Together <em>Our Future</em></h1>
-    <p class="lead">From a 50&nbsp;&times;&nbsp;100 plot plan to a finished mansion — Edlan Builders and Suppliers designs, supplies and builds across Nakuru and beyond.</p>
-    <div class="hero-actions">
-      <a href="contact.html" class="btn btn-primary" data-nav>Get a Free Quote</a>
-      <a href="tel:+254728234172" class="btn btn-outline">Call 0728 234 172</a>
+<!-- ===================== LOGIN VIEW ===================== -->
+<div id="loginView" class="admin-login-wrap">
+  <span class="eyebrow">Admin Access</span>
+  <h2 style="margin-bottom:20px;">Log in</h2>
+  <form id="loginForm">
+    <div class="form-row">
+      <label for="loginEmail">Email</label>
+      <input type="email" id="loginEmail" required>
     </div>
-    <div class="hero-scroll"><span>Scroll</span><span class="chevron"></span></div>
+    <div class="form-row">
+      <label for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" required>
+    </div>
+    <button type="submit" class="btn btn-primary btn-block">Log In</button>
+    <p class="login-error" id="loginError">Incorrect email or password.</p>
+  </form>
+</div>
+
+<!-- ===================== ADMIN VIEW ===================== -->
+<main class="admin-main" id="adminView" style="display:none;">
+
+  <div class="admin-section">
+    <span class="eyebrow">Upload</span>
+    <h2>Add a photo or video</h2>
+    <form id="uploadForm" class="contact-form" style="padding:26px;">
+      <div class="form-row">
+        <label for="mediaFile">Photo or video file</label>
+        <input type="file" id="mediaFile" accept="image/*,video/*" required>
+      </div>
+      <div class="form-row">
+        <label for="caption">Caption</label>
+        <textarea id="caption" rows="3" placeholder="e.g. 5-bedroom mansion in Kiamunyi — completed August 2026" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="uploadBtn">Upload for Review</button>
+      <p class="upload-status" id="uploadStatus"></p>
+    </form>
   </div>
-</section>
 
-<svg class="roofline" viewBox="0 0 1200 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M0,90 L0,55 L260,10 L520,55 L780,15 L1040,55 L1200,25 L1200,90 Z" fill="#faf8f2"></path>
-  <path d="M0,55 L260,10 L520,55 L780,15 L1040,55 L1200,25" fill="none" stroke="#f0d675" stroke-width="2.5" stroke-dasharray="10 6"></path>
-</svg>
-
-<!-- ===================== SERVICES PREVIEW ===================== -->
-<section class="section section-cream" id="services">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow">What We Do</span>
-      <h2>Seven services, one site plan at a time</h2>
-      <p>Every project starts on the drafting table and ends with a handover. Here's the full scope of what Edlan delivers.</p>
-    </div>
-
-    <div class="services-grid">
-
-      <div class="service-card reveal">
-        <span class="service-tag">50 × 100</span>
-        <svg class="service-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="10" width="36" height="28"/><path d="M6 10 L24 4 L42 10"/><line x1="6" y1="24" x2="42" y2="24" stroke-dasharray="3 3"/></svg>
-        <h3>Plot Plans (50 × 100)</h3>
-        <p>Accurate, council-ready 50 by 100 plot layout plans for residential and commercial parcels.</p>
-      </div>
-
-      <div class="service-card reveal">
-        <span class="service-tag">Design</span>
-        <svg class="service-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 40 L20 10 L34 40 Z"/><line x1="12" y1="30" x2="28" y2="30"/><path d="M30 40 L40 14 L44 40 Z"/></svg>
-        <h3>Architectural Design Plans</h3>
-        <p>Custom architectural drawings that balance your brief, your budget and Nakuru County approval requirements.</p>
-      </div>
-
-      <div class="service-card reveal">
-        <span class="service-tag">Supply</span>
-        <svg class="service-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="18" width="26" height="16"/><path d="M30 22 H40 L44 28 V34 H30 Z"/><circle cx="13" cy="38" r="3"/><circle cx="36" cy="38" r="3"/></svg>
-        <h3>Building Materials &amp; Delivery</h3>
-        <p>Cement, steel, timber, roofing and fittings — sourced and delivered straight to your site.</p>
-      </div>
-
-      <div class="service-card reveal">
-        <span class="service-tag">Build</span>
-        <svg class="service-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 42 V18 L24 6 L42 18 V42 Z"/><line x1="18" y1="42" x2="18" y2="26"/><line x1="30" y1="42" x2="30" y2="26"/></svg>
-        <h3>Building &amp; Construction</h3>
-        <p>Full turnkey construction managed from groundbreaking to finishing, on schedule and on budget.</p>
-      </div>
-
-      <div class="service-card reveal">
-        <span class="service-tag">Institutional</span>
-        <svg class="service-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20 L24 8 L44 20"/><rect x="8" y="20" width="32" height="20"/><line x1="24" y1="20" x2="24" y2="40"/><line x1="8" y1="30" x2="40" y2="30"/></svg>
-        <h3>School Plans</h3>
-        <p>Classroom blocks, administration wings and full-campus master plans built around learning outcomes.</p>
-      </div>
-
-      <div class="service-card reveal">
-        <span class="service-tag">Layout</span>
-        <svg class="service-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="5" width="38" height="38"/><line x1="5" y1="18" x2="43" y2="18"/><line x1="20" y1="18" x2="20" y2="43"/><circle cx="32" cy="30" r="5"/></svg>
-        <h3>Site Plans</h3>
-        <p>Topography-aware site plans that map access, drainage, utilities and building placement before you break ground.</p>
-      </div>
-
-      <div class="service-card reveal">
-        <span class="service-tag">Residential</span>
-        <svg class="service-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 24 L14 14 L14 8 L20 8 L20 12" /><path d="M4 24 L24 8 L44 24"/><rect x="10" y="24" width="28" height="16"/><line x1="24" y1="24" x2="24" y2="40"/></svg>
-        <h3>Mansion Design</h3>
-        <p>Statement homes designed for comfort and status, from concept sketch to construction-ready drawings.</p>
-      </div>
-
-    </div>
-
-    <div style="text-align:center; margin-top:44px;" class="reveal">
-      <a href="services.html" class="btn btn-magenta" data-nav>See all services in detail</a>
-    </div>
+  <div class="admin-section">
+    <span class="eyebrow">Awaiting Your Approval</span>
+    <h2>Pending review</h2>
+    <div id="pendingList"><p class="empty-note">Loading…</p></div>
   </div>
-</section>
 
-<svg class="roofline" viewBox="0 0 1200 70" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M0,0 L1200,0 L1200,50 L900,20 L600,55 L300,15 L0,45 Z" fill="#f1ede1"></path>
-</svg>
-
-<!-- ===================== ABOUT PREVIEW ===================== -->
-<section class="section section-dim" id="about">
-  <div class="container about-grid">
-    <div class="reveal">
-      <span class="eyebrow">Since Groundbreaking</span>
-      <h2>Local drafting knowledge, site-tested delivery</h2>
-      <p>Edlan Builders and Suppliers is a Nakuru-based design, supply and construction firm. We put the same team on your plan, your materials and your build — so nothing gets lost in translation between the drawing board and the site.</p>
-      <p>Whether you're subdividing a 50 × 100 plot, planning a school campus, or drawing up your dream mansion, we carry the project from first sketch to final coat of paint.</p>
-      <div class="stats-row">
-        <div class="stat-box"><strong>7</strong><span>Core Services</span></div>
-        <div class="stat-box"><strong>50×100</strong><span>Plot Specialists</span></div>
-        <div class="stat-box"><strong>Nakuru</strong><span>Home Base</span></div>
-        <div class="stat-box"><strong>1</strong><span>Team, Start to Finish</span></div>
-      </div>
-      <div style="margin-top:30px;">
-        <a href="about.html" class="btn btn-primary" data-nav>More about Edlan</a>
-      </div>
-    </div>
-    <div class="reveal">
-      <img src="images/about-team.jpg" alt="A modern bungalow home designed by Edlan Builders and Suppliers" loading="lazy" style="border-radius:14px; aspect-ratio:4/3; width:100%; height:100%; object-fit:cover;">
-    </div>
+  <div class="admin-section">
+    <span class="eyebrow">Live on the Site</span>
+    <h2>Published to "Our Work"</h2>
+    <div id="approvedList"><p class="empty-note">Loading…</p></div>
   </div>
-</section>
 
-<!-- ===================== PROCESS ===================== -->
-<section class="section section-cream">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow">How It Works</span>
-      <h2>From plan to plot to finished project</h2>
-    </div>
-    <div class="process-steps">
-      <div class="process-step reveal">
-        <h3>Consultation</h3>
-        <p>We visit or discuss your plot, your budget and your vision — whether it's a plot plan or a full mansion build.</p>
-      </div>
-      <div class="process-step reveal">
-        <h3>Design &amp; Approval</h3>
-        <p>Our drafters produce architectural, site or school plans ready for county approval.</p>
-      </div>
-      <div class="process-step reveal">
-        <h3>Materials &amp; Supply</h3>
-        <p>We quote and deliver the building materials your plan calls for, on your schedule.</p>
-      </div>
-      <div class="process-step reveal">
-        <h3>Construction &amp; Handover</h3>
-        <p>Our crews build to plan and hand over a finished, inspected structure.</p>
-      </div>
-    </div>
-  </div>
-</section>
+</main>
 
-<!-- ===================== TESTIMONIALS / CTA ===================== -->
-<section class="section section-navy">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow">Client Feedback</span>
-      <h2>What clients say about working with Edlan</h2>
-    </div>
-    <div class="testimonial-grid">
-      <div class="testimonial-card reveal">
-        <p>"Edlan drew up our site plan and had the county approval sorted faster than we expected. Straightforward people to deal with."</p>
-        <span class="testimonial-name">— Nakuru Homeowner</span>
-      </div>
-      <div class="testimonial-card reveal">
-        <p>"From plot plan to keys in hand, one team handled everything. That saved us months of coordinating separate contractors."</p>
-        <span class="testimonial-name">— Residential Client</span>
-      </div>
-      <div class="testimonial-card reveal">
-        <p>"Reliable material deliveries kept our school block on schedule through the whole build."</p>
-        <span class="testimonial-name">— Institutional Client</span>
-      </div>
-    </div>
-    <div class="badge-row" style="justify-content:center; margin-top:36px;">
-      <span>Plot Plans</span><span>Architectural Design</span><span>Site Plans</span><span>School Plans</span><span>Mansion Design</span><span>Materials &amp; Delivery</span><span>Construction</span>
-    </div>
-  </div>
-</section>
-
-<!-- ===================== CTA BAND ===================== -->
-<section class="cta-band">
-  <div class="container reveal">
-    <h2>Ready to put your plot to work?</h2>
-    <p>Talk to Edlan Builders and Suppliers today — call, WhatsApp or send an enquiry.</p>
-    <div class="cta-actions">
-      <a href="tel:+254728234172" class="btn btn-primary">Call Now</a>
-      <a href="https://wa.me/254728234172" target="_blank" rel="noopener" class="btn btn-magenta">WhatsApp Us</a>
-      <a href="contact.html" class="btn btn-outline" style="color:#0e1740; border-color:#0e1740;" data-nav>Request a Quote</a>
-    </div>
-  </div>
-</section>
-
-<!-- ===================== FOOTER ===================== -->
-<footer class="site-footer">
-  <div class="container">
-    <div class="footer-grid">
-      <div>
-        <div class="footer-brand">
-          <img src="images/logo.png" alt="Edlan logo">
-          <div>
-            <strong>EDLAN Builders &amp; Suppliers</strong>
-            <span>Building together our future</span>
-          </div>
-        </div>
-        <p style="font-size:0.9rem; color:#aab3ce;">Plot plans, architectural design, site plans, school plans, mansion design, building materials &amp; delivery, and full construction — based in Nakuru, Kenya.</p>
-      </div>
-      <div class="footer-col">
-        <h4>Quick Links</h4>
-        <ul>
-          <li><a href="index.html" data-nav>Home</a></li>
-          <li><a href="services.html" data-nav>Services</a></li>
-          <li><a href="work.html" data-nav>Our Work</a></li>
-        <li><a href="about.html" data-nav>About Us</a></li>
-          <li><a href="contact.html" data-nav>Contact</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Contact</h4>
-        <ul>
-          <li><a href="tel:+254728234172">📞 0728 234 172</a></li>
-          <li><a href="https://wa.me/254728234172" target="_blank" rel="noopener">💬 +254 728 234 172 (WhatsApp)</a></li>
-          <li><a href="https://www.facebook.com/profile.php?id=61578345779310" target="_blank" rel="noopener">📘 Facebook Page</a></li>
-          <li><a href="mailto:edlanbid@gmail.com">✉️ edlanbid@gmail.com</a></li>
-          <li>P.O Box 16045 – 20100, Nakuru, Kenya</li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© <span id="year"></span> Edlan Builders and Suppliers. All rights reserved.</span>
-      <span>Building together our future.</span>
-    </div>
-  </div>
-</footer>
-
-<a class="facebook-float" href="https://www.facebook.com/profile.php?id=61578345779310" target="_blank" rel="noopener" aria-label="Visit our Facebook page">
-  <svg viewBox="0 0 24 24"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.89h2.78l-.44 2.91h-2.34V22c4.78-.79 8.44-4.94 8.44-9.94z"/></svg>
-</a>
-<a class="whatsapp-float" href="https://wa.me/254728234172" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
-  <svg viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2 22l5.25-1.38c1.45.79 3.08 1.21 4.78 1.21h.01c5.46 0 9.91-4.45 9.91-9.91C21.95 6.45 17.5 2 12.04 2zm5.79 14.11c-.24.68-1.4 1.31-1.93 1.35-.5.05-1.03.26-3.46-.72-2.92-1.18-4.79-4.1-4.94-4.29-.15-.19-1.18-1.57-1.18-2.99 0-1.42.75-2.12 1.02-2.41.27-.29.58-.36.78-.36.19 0 .39 0 .56.01.18.01.42-.07.66.5.24.58.83 2 .9 2.15.07.15.12.32.02.51-.1.19-.15.31-.3.48-.15.17-.31.38-.44.51-.15.15-.3.31-.13.6.17.29.75 1.24 1.62 2.01 1.11.99 2.05 1.3 2.34 1.45.29.15.46.12.63-.07.17-.19.71-.83.9-1.11.19-.29.38-.24.63-.15.26.1 1.66.78 1.94.92.29.15.48.22.55.34.07.13.07.72-.17 1.4z"/></svg>
-</a>
+<!-- Firebase (compat SDK — simplest for a plain script tag, no build step) -->
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 
 <script>
-/* ==========================================================================
-   EDLAN BUILDERS AND SUPPLIERS — Site script
-   ========================================================================== */
+  // ---- Firebase project config ----
+  const firebaseConfig = {
+    apiKey: "AIzaSyC02FQftOc1jzquVzjMHwNlPz6QjlxXzA4",
+    authDomain: "edlan-builders-and-suppliers.firebaseapp.com",
+    projectId: "edlan-builders-and-suppliers",
+    storageBucket: "edlan-builders-and-suppliers.firebasestorage.app",
+    messagingSenderId: "147064657079",
+    appId: "1:147064657079:web:9d3c5ce63abcca47ce6932"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-document.addEventListener('DOMContentLoaded', function () {
+  // ---- Cloudinary config ----
+  const CLOUD_NAME = "isg1ojnd";
+  const UPLOAD_PRESET = "edlan-work";
 
-  /* ---------- Mobile nav toggle ---------- */
-  var toggle = document.querySelector('.nav-toggle');
-  var links = document.querySelector('.nav-links');
-  if (toggle && links) {
-    toggle.addEventListener('click', function () {
-      links.classList.toggle('open');
+  const loginView = document.getElementById('loginView');
+  const adminView = document.getElementById('adminView');
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  // ---- Auth state ----
+  auth.onAuthStateChanged(function (user) {
+    if (user) {
+      loginView.style.display = 'none';
+      adminView.style.display = 'block';
+      logoutBtn.style.display = 'inline-flex';
+      startListeners();
+    } else {
+      loginView.style.display = 'block';
+      adminView.style.display = 'none';
+      logoutBtn.style.display = 'none';
+    }
+  });
+
+  document.getElementById('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const errorEl = document.getElementById('loginError');
+    errorEl.style.display = 'none';
+    auth.signInWithEmailAndPassword(email, password).catch(function (err) {
+      errorEl.textContent = err.message;
+      errorEl.style.display = 'block';
     });
-    links.querySelectorAll('a').forEach(function (a) {
-      a.addEventListener('click', function () { links.classList.remove('open'); });
-    });
-  }
+  });
 
-  /* ---------- Header shadow on scroll ---------- */
-  var header = document.querySelector('.site-header');
-  if (header) {
-    window.addEventListener('scroll', function () {
-      if (window.scrollY > 20) {
-        header.style.boxShadow = '0 8px 24px rgba(14,23,64,0.35)';
-      } else {
-        header.style.boxShadow = 'none';
-      }
-    });
-  }
+  logoutBtn.addEventListener('click', function () { auth.signOut(); });
 
-  /* ---------- Hero slideshow ---------- */
-  var slides = document.querySelectorAll('.slide');
-  var dotsWrap = document.querySelector('.slide-dots');
-  if (slides.length) {
-    var current = 0;
-    slides[0].classList.add('active');
+  // ---- Upload ----
+  document.getElementById('uploadForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const fileInput = document.getElementById('mediaFile');
+    const captionInput = document.getElementById('caption');
+    const statusEl = document.getElementById('uploadStatus');
+    const btn = document.getElementById('uploadBtn');
+    const file = fileInput.files[0];
+    if (!file) return;
 
-    if (dotsWrap) {
-      slides.forEach(function (_, i) {
-        var dot = document.createElement('button');
-        if (i === 0) dot.classList.add('active');
-        dot.setAttribute('aria-label', 'Show slide ' + (i + 1));
-        dot.addEventListener('click', function () { goToSlide(i); });
-        dotsWrap.appendChild(dot);
+    btn.disabled = true;
+    btn.textContent = 'Uploading…';
+    statusEl.className = 'upload-status';
+    statusEl.style.display = 'block';
+    statusEl.textContent = 'Uploading to Cloudinary — this can take a moment for video…';
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', UPLOAD_PRESET);
+
+    fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/auto/upload', {
+      method: 'POST',
+      body: formData
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data.error) throw new Error(data.error.message);
+        return db.collection('gallery').add({
+          url: data.secure_url,
+          publicId: data.public_id,
+          resourceType: data.resource_type,
+          caption: captionInput.value.trim(),
+          status: 'pending',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      })
+      .then(function () {
+        statusEl.textContent = 'Uploaded — it is now in "Pending review" below.';
+        statusEl.classList.add('success');
+        document.getElementById('uploadForm').reset();
+      })
+      .catch(function (err) {
+        statusEl.textContent = 'Upload failed: ' + err.message;
+      })
+      .finally(function () {
+        btn.disabled = false;
+        btn.textContent = 'Upload for Review';
       });
-    }
+  });
 
-    function goToSlide(index) {
-      slides[current].classList.remove('active');
-      if (dotsWrap) dotsWrap.children[current].classList.remove('active');
-      current = index;
-      slides[current].classList.add('active');
-      if (dotsWrap) dotsWrap.children[current].classList.add('active');
+  // ---- Render helpers ----
+  function mediaThumb(item) {
+    if (item.resourceType === 'video') {
+      return '<video src="' + item.url + '" muted></video>';
     }
-
-    setInterval(function () {
-      goToSlide((current + 1) % slides.length);
-    }, 5000);
+    return '<img src="' + item.url + '" alt="">';
   }
 
-  /* ---------- Scroll reveal ---------- */
-  var revealEls = document.querySelectorAll('.reveal');
-  if ('IntersectionObserver' in window && revealEls.length) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('in-view');
-          io.unobserve(entry.target);
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  function renderPending(items) {
+    const wrap = document.getElementById('pendingList');
+    if (!items.length) {
+      wrap.innerHTML = '<p class="empty-note">Nothing waiting for review right now.</p>';
+      return;
+    }
+    wrap.innerHTML = items.map(function (item) {
+      return '<div class="admin-item">' +
+        '<div class="thumb">' + mediaThumb(item) + '</div>' +
+        '<div class="info"><p>' + escapeHtml(item.caption) + '</p>' +
+        '<span class="meta">' + item.resourceType.toUpperCase() + '</span></div>' +
+        '<div class="actions">' +
+        '<button class="btn-sm btn-approve" data-approve="' + item.id + '">Approve</button>' +
+        '<button class="btn-sm btn-reject" data-reject="' + item.id + '">Reject</button>' +
+        '</div></div>';
+    }).join('');
+
+    wrap.querySelectorAll('[data-approve]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        db.collection('gallery').doc(btn.dataset.approve).update({ status: 'approved' });
+      });
+    });
+    wrap.querySelectorAll('[data-reject]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (confirm('Reject and delete this item? This cannot be undone.')) {
+          db.collection('gallery').doc(btn.dataset.reject).delete();
         }
       });
-    }, { threshold: 0.15 });
-    revealEls.forEach(function (el) { io.observe(el); });
-  } else {
-    revealEls.forEach(function (el) { el.classList.add('in-view'); });
-  }
-
-  /* ---------- Loading overlay (logo as loading indicator) ---------- */
-  var overlay = document.getElementById('loadOverlay');
-
-  function showLoader() {
-    if (overlay) overlay.classList.add('show');
-  }
-  function hideLoader() {
-    if (overlay) overlay.classList.remove('show');
-  }
-
-  // Hide loader once the page has fully rendered (covers the case where
-  // this page itself was reached via a loader-triggering link).
-  window.addEventListener('load', function () {
-    setTimeout(hideLoader, 900);
-  });
-
-  // Trigger the logo loader on internal page navigation.
-  document.querySelectorAll('a[data-nav]').forEach(function (link) {
-    link.addEventListener('click', function (e) {
-      var href = link.getAttribute('href');
-      if (!href || href.startsWith('#') || link.target === '_blank') return;
-      e.preventDefault();
-      showLoader();
-      setTimeout(function () { window.location.href = href; }, 1100);
-    });
-  });
-
-  /* ---------- Contact form ---------- */
-  var form = document.getElementById('contactForm');
-  if (form) {
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      showLoader();
-
-      var name = form.querySelector('#name').value.trim();
-      var phone = form.querySelector('#phone').value.trim();
-      var service = form.querySelector('#service').value;
-      var message = form.querySelector('#message').value.trim();
-
-      var body = 'Name: ' + name + '%0D%0APhone: ' + phone +
-                 '%0D%0AService needed: ' + service +
-                 '%0D%0A%0D%0A' + encodeURIComponent(message);
-      var subject = encodeURIComponent('Website enquiry from ' + (name || 'a visitor'));
-
-      setTimeout(function () {
-        window.location.href = 'mailto:edlanbid@gmail.com?subject=' + subject + '&body=' + body;
-        hideLoader();
-        var confirmBox = document.getElementById('formConfirm');
-        if (confirmBox) confirmBox.style.display = 'block';
-        form.reset();
-      }, 1300);
     });
   }
 
-  /* ---------- Any generic button that should show the loader briefly ---------- */
-  document.querySelectorAll('[data-loader]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      showLoader();
-      setTimeout(hideLoader, 1400);
+  function renderApproved(items) {
+    const wrap = document.getElementById('approvedList');
+    if (!items.length) {
+      wrap.innerHTML = '<p class="empty-note">Nothing published yet.</p>';
+      return;
+    }
+    wrap.innerHTML = items.map(function (item) {
+      return '<div class="admin-item">' +
+        '<div class="thumb">' + mediaThumb(item) + '</div>' +
+        '<div class="info"><p>' + escapeHtml(item.caption) + '</p>' +
+        '<span class="meta">' + item.resourceType.toUpperCase() + ' — live on Our Work</span></div>' +
+        '<div class="actions">' +
+        '<button class="btn-sm btn-remove" data-remove="' + item.id + '">Remove from Site</button>' +
+        '</div></div>';
+    }).join('');
+
+    wrap.querySelectorAll('[data-remove]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (confirm('Remove this from the public gallery?')) {
+          db.collection('gallery').doc(btn.dataset.remove).delete();
+        }
+      });
     });
-  });
+  }
 
-});
-
+  function startListeners() {
+    db.collection('gallery').orderBy('createdAt', 'desc')
+      .onSnapshot(function (snapshot) {
+        const pending = [];
+        const approved = [];
+        snapshot.forEach(function (doc) {
+          const item = Object.assign({ id: doc.id }, doc.data());
+          if (item.status === 'approved') approved.push(item);
+          else pending.push(item);
+        });
+        renderPending(pending);
+        renderApproved(approved);
+      }, function (err) {
+        document.getElementById('pendingList').innerHTML =
+          '<p class="empty-note">Could not load items: ' + err.message + '</p>';
+      });
+  }
 </script>
-<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 </body>
 </html>
