@@ -1466,7 +1466,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Hide loader once the page has fully rendered (covers the case where
   // this page itself was reached via a loader-triggering link).
   window.addEventListener('load', function () {
-    setTimeout(hideLoader, 350);
+    setTimeout(hideLoader, 900);
   });
 
   // Trigger the logo loader on internal page navigation.
@@ -1476,7 +1476,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!href || href.startsWith('#') || link.target === '_blank') return;
       e.preventDefault();
       showLoader();
-      setTimeout(function () { window.location.href = href; }, 550);
+      setTimeout(function () { window.location.href = href; }, 1100);
     });
   });
 
@@ -1503,7 +1503,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var confirmBox = document.getElementById('formConfirm');
         if (confirmBox) confirmBox.style.display = 'block';
         form.reset();
-      }, 700);
+      }, 1300);
     });
   }
 
@@ -1511,7 +1511,7 @@ document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('[data-loader]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       showLoader();
-      setTimeout(hideLoader, 900);
+      setTimeout(hideLoader, 1400);
     });
   });
 
