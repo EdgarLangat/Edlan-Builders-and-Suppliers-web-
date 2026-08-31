@@ -1258,7 +1258,13 @@ section { position: relative; }
   margin-bottom: 8px;
 }
 .quote-card .quote-message { color: var(--ink-soft); font-size: 0.92rem; margin: 0; }
-.quote-card .quote-time { font-family: var(--font-mono); font-size: 0.68rem; color: #a5abbb; margin-top: 8px; }
+.quote-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+.quote-card .quote-time { font-family: var(--font-mono); font-size: 0.68rem; color: #a5abbb; }
 .upload-status {
   font-family: var(--font-mono);
   font-size: 0.8rem;
@@ -2005,9 +2011,20 @@ section { position: relative; }
             '</div>' +
             (q.service ? '<span class="quote-service">' + escapeHtml(q.service) + '</span>' : '') +
             '<p class="quote-message">' + escapeHtml(q.message || '(no message)') + '</p>' +
-            (when ? '<div class="quote-time">' + when + '</div>' : '') +
+            '<div class="quote-bottom">' +
+            (when ? '<span class="quote-time">' + when + '</span>' : '<span></span>') +
+            '<button class="btn-sm btn-remove" data-delete-quote="' + doc.id + '">Delete</button>' +
+            '</div>' +
             '</div>';
         }).join('');
+
+        document.querySelectorAll('[data-delete-quote]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            if (confirm('Delete this quote request? This cannot be undone.')) {
+              db.collection('quotes').doc(btn.dataset.deleteQuote).delete();
+            }
+          });
+        });
       }, function (err) {
         document.getElementById('quotesList').innerHTML =
           '<p class="empty-note">Could not load quote requests: ' + err.message + '</p>';
