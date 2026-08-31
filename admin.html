@@ -1161,6 +1161,104 @@ section { position: relative; }
 
 .admin-section { margin-bottom: 56px; }
 .admin-section h2 { font-size: 1.3rem; }
+
+.stat-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin: 20px 0 28px;
+}
+.stat-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+  box-shadow: var(--shadow-soft);
+  border-top: 3px solid var(--amber);
+}
+.stat-card strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  color: var(--navy);
+}
+.stat-card span {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+.dash-box {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow-soft);
+}
+.dash-box h4 {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--navy);
+  margin-bottom: 12px;
+}
+.click-row, .top-liked-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(27,42,110,0.08);
+  font-size: 0.9rem;
+}
+.click-row:last-child, .top-liked-row:last-child { border-bottom: none; }
+.click-row span:first-child { text-transform: capitalize; color: var(--ink-soft); }
+.click-row span:last-child { font-family: var(--font-mono); font-weight: 700; color: var(--navy); }
+.top-liked-row .cap { flex: 1; padding-right: 10px; }
+.top-liked-row .count {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--magenta-dark);
+  white-space: nowrap;
+}
+
+.quote-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-soft);
+  border-left: 4px solid var(--green-start);
+  margin-bottom: 14px;
+}
+.quote-card .quote-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.quote-card .quote-name { font-family: var(--font-display); font-weight: 700; color: var(--navy); }
+.quote-card .quote-phone a { color: var(--magenta-dark); font-family: var(--font-mono); font-size: 0.85rem; }
+.quote-card .quote-service {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  color: var(--amber-dark);
+  background: #fff3cd;
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+.quote-card .quote-message { color: var(--ink-soft); font-size: 0.92rem; margin: 0; }
+.quote-card .quote-time { font-family: var(--font-mono); font-size: 0.68rem; color: #a5abbb; margin-top: 8px; }
 .upload-status {
   font-family: var(--font-mono);
   font-size: 0.8rem;
@@ -1352,6 +1450,45 @@ section { position: relative; }
 <main class="admin-main" id="adminView" style="display:none;">
 
   <div class="admin-section">
+    <span class="eyebrow">Overview</span>
+    <h2>Dashboard</h2>
+
+    <div class="stat-cards">
+      <div class="stat-card">
+        <strong id="statTotalClicks">–</strong>
+        <span>Total Link Clicks</span>
+      </div>
+      <div class="stat-card">
+        <strong id="statTotalLikes">–</strong>
+        <span>Total Likes</span>
+      </div>
+      <div class="stat-card">
+        <strong id="statTotalQuotes">–</strong>
+        <span>Quote Requests</span>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="dash-box">
+        <h4>Link Clicks Breakdown</h4>
+        <div id="clickBreakdown"><p class="empty-note">Loading…</p></div>
+      </div>
+      <div class="dash-box">
+        <h4>Likes Summary</h4>
+        <div id="likesSummary"><p class="empty-note">Loading…</p></div>
+        <h4 style="margin-top:20px;">Top Liked</h4>
+        <div id="topLiked"><p class="empty-note">Loading…</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-section">
+    <span class="eyebrow">From the Contact Form</span>
+    <h2>Quote Requests</h2>
+    <div id="quotesList"><p class="empty-note">Loading…</p></div>
+  </div>
+
+  <div class="admin-section">
     <span class="eyebrow">Upload</span>
     <h2>Add a photo or video</h2>
     <form id="uploadForm" class="contact-form" style="padding:26px;">
@@ -1417,6 +1554,8 @@ section { position: relative; }
       adminView.style.display = 'block';
       logoutBtn.style.display = 'inline-flex';
       startListeners();
+      startClickStats();
+      startQuoteListener();
     } else {
       loginView.style.display = 'block';
       adminView.style.display = 'none';
@@ -1787,9 +1926,91 @@ section { position: relative; }
         });
         renderPending(pending);
         renderApproved(approved);
+        renderLikesSummary(approved);
       }, function (err) {
         document.getElementById('pendingList').innerHTML =
           '<p class="empty-note">Could not load items: ' + err.message + '</p>';
+      });
+  }
+
+  // ---- Likes summary + top liked (dashboard) ----
+  function renderLikesSummary(approvedItems) {
+    const photos = approvedItems.filter(function (i) { return i.resourceType === 'image'; });
+    const videos = approvedItems.filter(function (i) { return i.resourceType === 'video'; });
+    const sum = function (list) { return list.reduce(function (t, i) { return t + (i.likes || 0); }, 0); };
+    const totalLikes = sum(approvedItems);
+
+    document.getElementById('statTotalLikes').textContent = totalLikes;
+
+    document.getElementById('likesSummary').innerHTML =
+      '<div class="click-row"><span>Photo likes</span><span>' + sum(photos) + '</span></div>' +
+      '<div class="click-row"><span>Video likes</span><span>' + sum(videos) + '</span></div>' +
+      '<div class="click-row"><span>Total</span><span>' + totalLikes + '</span></div>';
+
+    const top = approvedItems
+      .filter(function (i) { return (i.likes || 0) > 0; })
+      .sort(function (a, b) { return (b.likes || 0) - (a.likes || 0); })
+      .slice(0, 5);
+
+    document.getElementById('topLiked').innerHTML = top.length
+      ? top.map(function (i) {
+          return '<div class="top-liked-row"><span class="cap">' + escapeHtml(i.caption) + '</span>' +
+            '<span class="count">♥ ' + i.likes + '</span></div>';
+        }).join('')
+      : '<p class="empty-note">No likes yet.</p>';
+  }
+
+  // ---- Link click analytics (dashboard) ----
+  function startClickStats() {
+    db.collection('analytics').get().then(function (snapshot) {
+      let total = 0;
+      const rows = [];
+      snapshot.forEach(function (doc) {
+        const count = doc.data().count || 0;
+        total += count;
+        rows.push({ id: doc.id, count: count });
+      });
+      rows.sort(function (a, b) { return b.count - a.count; });
+
+      document.getElementById('statTotalClicks').textContent = total;
+      document.getElementById('clickBreakdown').innerHTML = rows.length
+        ? rows.map(function (r) {
+            return '<div class="click-row"><span>' + escapeHtml(r.id) + '</span><span>' + r.count + '</span></div>';
+          }).join('')
+        : '<p class="empty-note">No clicks recorded yet.</p>';
+    }).catch(function (err) {
+      document.getElementById('clickBreakdown').innerHTML =
+        '<p class="empty-note">Could not load click stats: ' + err.message + '</p>';
+    });
+  }
+
+  // ---- Quote requests from the Contact form (dashboard) ----
+  function startQuoteListener() {
+    db.collection('quotes').orderBy('createdAt', 'desc')
+      .onSnapshot(function (snapshot) {
+        document.getElementById('statTotalQuotes').textContent = snapshot.size;
+
+        if (snapshot.empty) {
+          document.getElementById('quotesList').innerHTML = '<p class="empty-note">No quote requests yet.</p>';
+          return;
+        }
+
+        document.getElementById('quotesList').innerHTML = snapshot.docs.map(function (doc) {
+          const q = doc.data();
+          const when = q.createdAt && q.createdAt.toDate ? q.createdAt.toDate().toLocaleString() : '';
+          return '<div class="quote-card">' +
+            '<div class="quote-top">' +
+            '<span class="quote-name">' + escapeHtml(q.name || 'Unknown') + '</span>' +
+            '<span class="quote-phone"><a href="tel:' + escapeHtml(q.phone || '') + '">' + escapeHtml(q.phone || '') + '</a></span>' +
+            '</div>' +
+            (q.service ? '<span class="quote-service">' + escapeHtml(q.service) + '</span>' : '') +
+            '<p class="quote-message">' + escapeHtml(q.message || '(no message)') + '</p>' +
+            (when ? '<div class="quote-time">' + when + '</div>' : '') +
+            '</div>';
+        }).join('');
+      }, function (err) {
+        document.getElementById('quotesList').innerHTML =
+          '<p class="empty-note">Could not load quote requests: ' + err.message + '</p>';
       });
   }
 </script>
